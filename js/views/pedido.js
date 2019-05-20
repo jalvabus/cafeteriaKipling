@@ -16,6 +16,18 @@ var app = angular.module('pedidoApp', [])
 
         $scope.authLogin();
 
+        $scope.getPuntosTotales = function () {
+            $http({
+                method: 'GET',
+                url: $scope.API + 'puntos'
+            }).then((response, err) => {
+                console.log(response);
+                $scope.puntos = response.data;
+            })
+        }
+
+        $scope.getPuntosTotales();
+
         $scope.getPedidoEnCurso = function () {
             $scope.total = 0;
             $scope.pedido = JSON.parse(localStorage.getItem('pedido')).items;
@@ -56,84 +68,67 @@ var app = angular.module('pedidoApp', [])
 
         $scope.confirmarOrden = function () {
             console.log($scope.pedido);
-            var data = {};
-
-            data[0] = { total: ($scope.pedido.length + 1) };
-            data[1] = { usuario: $scope.usuario };
-
-            $scope.pedido.forEach((menu, i) => {
-                data[i + 2] = menu;
-            })            
-
-            var datos = $.param(data);
-
-            $http({
-                method: 'POST',
-                url: $scope.API + 'pedido',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: datos
-            }).then((response, err) => {
-                console.log('pedido completado');
-                console.log(response.data);
+            if (Number($scope.usuario.puntos) < Number($scope.total)) {
                 swal({
-                    title: 'Orden Completa',
-                    text: 'Se ah completado su orden',
-                    icon: 'success'
+                    title: 'Puntos insuficientes',
+                    text: 'No se cuentan con los puntos suficientes',
+                    icon: 'error'
                 })
-            })
+            } else {
 
 
-            /*
-            $http({
-                method: 'POST',
-                url: $scope.API + 'paypal/pay',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                data: datos
-            }).then((response, err) => {
-                var payment = response.data;
-                console.log(payment);
-                for (var i = 0; i < payment.links.length; i++) {
-                    if (payment.links[i].rel === 'approval_url') {
-                        // res.redirect(payment.links[i].href);
-                        window.open(payment.links[i].href, '_blank')
-                    }
-                }
-            })
-            */
+                var data = {};
 
+                data[0] = { total: ($scope.pedido.length + 1) };
+                data[1] = { usuario: $scope.usuario };
+
+                $scope.pedido.forEach((menu, i) => {
+                    data[i + 2] = menu;
+                })
+
+                var datos = $.param(data);
+
+                $scope.removePuntosUsuario()
+                    .then(() => {
+                        $http({
+                            method: 'POST',
+                            url: $scope.API + 'pedido',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            data: datos
+                        }).then((response, err) => {
+                            console.log('pedido completado');
+                            console.log(response.data);
+                            swal({
+                                title: 'Orden Completa',
+                                text: 'Se ah completado su orden',
+                                icon: 'success'
+                            })
+                            $scope.vaciarCarrito();
+                        })
+                    })
+
+            }
         }
 
-        $scope.createOrden = function () {
-            var fecha = moment(new Date()).format('YYYY-MM-DD');
-
+        $scope.removePuntosUsuario = function () {
             return new Promise((resolve, reject) => {
                 $http({
                     method: 'POST',
-                    url: $scope.API + 'pedido/index.php',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': "application/json, text/plain, */*" },
-                    data: 'action=createOne' +
-                        '&id_usuario=' + $scope.usuario.id_usuario +
-                        '&total=' + $scope.total +
-                        '&pagado=' + false +
-                        '&fecha=' + fecha
-                }).then((response, err) => {
-                    console.log('pedido completado');
-                    console.log(response.data);
-                    swal({
-                        title: 'Orden Completa',
-                        text: 'Se ah completado su orden',
-                        icon: 'success'
-                    })
-                    var data = '?action=getLastID';
-                    $http({
-                        method: 'GET',
-                        url: $scope.API + 'pedido/index.php' + data
-                    }).then((response, err) => {
-                        console.log(response);
-                        resolve(response.data.id_pedido);
-                    })
+                    url: $scope.API + 'usuario/removePuntos/' + $scope.usuario._id,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    data: 'totalPuntos=' + (Number($scope.usuario.puntos) - Number($scope.total))
                 })
+                    .then((response, err) => {
+                        console.log(response.data);
+                        swal({
+                            title: "Puntos Agregados",
+                            text: "Se han agregado los puntos",
+                            icon: "success"
+                        })
+                        resolve(true);
+                    })
             })
+
         }
 
         $scope.vaciarCarrito = function () {
