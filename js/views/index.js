@@ -1,6 +1,6 @@
 var app = angular.module('indexApp', [])
     .controller('indexController', ($scope, $http) => {
-        $scope.API = "http://localhost:3002/api/";
+
         $scope.menus = [];
         $scope.startDate = null;
         $scope.endDate = null;
@@ -58,7 +58,7 @@ var app = angular.module('indexApp', [])
             $http({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                url: $scope.API + 'menu/getByDate',
+                url: API + 'menu/getByDate',
                 data: data
             }).then((response, err) => {
                 console.log("obteniendo menus")
@@ -121,7 +121,7 @@ var app = angular.module('indexApp', [])
         $scope.getMenuSemana();
 
         $scope.usuario = {};
-        
+
         $scope.authLogin = function () {
             if (!localStorage.getItem("usuario")) {
                 window.location.replace('login.html');
@@ -132,6 +132,27 @@ var app = angular.module('indexApp', [])
         }
 
         $scope.authLogin();
+
+
+        $scope.reloadUser = function () {
+
+            $http({
+                method: 'POST',
+                url: MAIN + 'login',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: 'usuario=' + $scope.usuario.usuario + '&password=' + $scope.usuario.password
+            }).then((response, err) => {
+                console.log(response.data);
+                var data = response.data;
+                $scope.saveUserLocalStorage(data.usuario);
+            });
+        }
+
+        $scope.saveUserLocalStorage = function (user) {
+            window.localStorage.setItem('usuario', JSON.stringify(user));
+        }
+
+        $scope.reloadUser();
 
         $scope.Menu = {};
         $scope.addToCart = function (Menu) {
@@ -155,12 +176,13 @@ var app = angular.module('indexApp', [])
 
                 var pedidoActual = JSON.parse(localStorage.getItem("pedido"));
 
-                pedidoActual.items.forEach((item, i) => {
-                    if (addItem._id == item._id) {
-                        existe = true;
-                        posicion = 1;
-                    }
-                })
+                if (pedidoActual.items)
+                    pedidoActual.items.forEach((item, i) => {
+                        if (addItem._id == item._id) {
+                            existe = true;
+                            posicion = 1;
+                        }
+                    })
 
                 if (!existe) {
                     addItem.cantidad = 1;

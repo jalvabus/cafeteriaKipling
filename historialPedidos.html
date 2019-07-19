@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="historialApp">
 
 <head>
     <title>Historial</title>
@@ -11,9 +11,17 @@
     <link href="plugins/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="styles/cart.css">
     <link rel="stylesheet" type="text/css" href="styles/cart_responsive.css">
+
+    <!-- Angular & SweetAlert-->
+    <script src="js/angular/angular.js"></script>
+    <script src="js/sweetalert/sweetalert.js"></script>
+    <script src="js/jquery-3.2.1.min.js"></script>
+
+    <!-- MOMENT JS-->
+    <script src="js/moment.js"></script>
 </head>
 
-<body>
+<body ng-controller="historialController">
 
     <!-- Menu -->
 
@@ -136,53 +144,82 @@
                             <div class="cart_container">
 
                                 <table class="table">
-                                    <thead>
+                                    <thead class="bg-light">
                                         <tr>
-                                            <th>Pedido</th>
-                                            <th>Fecha</th>
-                                            <th>Cantidad</th>
-                                            <th>Total</th>
-                                            <th>Detalles</th>
+                                            <th scope="col" class="border-0">Usuario</th>
+                                            <th scope="col" class="border-0">Fecha</th>
+                                            <th scope="col" class="border-0">Total</th>
+                                            <th scope="col" class="border-0">Detalles</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>25/03/2019</td>
-                                            <td>5</td>
-                                            <td>$ 280</td>
+                                        <tr ng-repeat="pedido in pedidos">
+                                            <td>{{ pedido.usuario.nombre }} {{ pedido.usuario.apellido_paterno }}
+                                                {{ pedido.usuario.apellido_materno }}</td>
+                                            <td>{{ pedido.fecha }}</td>
+                                            <td>$ {{ pedido.total }}</td>
                                             <td>
-                                                <button class="btn btn-default">
+                                                <button class="btn btn-default" ng-click="selectPedido(pedido)" data-toggle="modal" data-target="#exampleModal">
                                                     <i class="fa fa-list"></i>
                                                 </button>
                                             </td>
-                                        </tr>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>25/03/2019</td>
-                                            <td>5</td>
-                                            <td>$ 280</td>
-                                            <td>
-                                                <button class="btn btn-default">
-                                                    <i class="fa fa-list"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>25/03/2019</td>
-                                            <td>5</td>
-                                            <td>$ 280</td>
-                                            <td>
-                                                <button class="btn btn-default">
-                                                    <i class="fa fa-list"></i>
-                                                </button>
-                                            </td>
+                                           
                                         </tr>
                                     </tbody>
                                 </table>
 
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" style="padding-top: 10%;" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h3 class="modal-title text-center" id="exampleModalLabel">Detalles del Pedido</h3>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Alumno</th>
+                                        <th>Menu</th>
+                                        <th>Comida</th>
+                                        <th>Agua</th>
+                                        <th>Postre</th>
+                                        <th>Entregado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="detalles in pedido.detalles">
+                                        <td>{{ detalles.alumno.nombre }} {{ detalles.alumno.apellido_paterno }} {{ detalles.alumno.apellido_materno
+                                            }} - {{ detalles.alumno.grupo }}</td>
+                                        <td>{{ detalles.menu.dia }}</td>
+                                        <td>{{ detalles.menu.comida }}</td>
+                                        <td>{{ detalles.menu.agua }}</td>
+                                        <td>{{ detalles.menu.postre }}</td>
+                                        <td>
+                                            <div ng-if="detalles.entregado">
+                                                Se entregó
+                                            </div>
+                                            <div ng-if="!detalles.entregado">
+                                                No entregado
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger btn-block" data-dismiss="modal">
+                                Cerrar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -319,6 +356,9 @@
     <script src="plugins/easing/easing.js"></script>
     <script src="plugins/parallax-js-master/parallax.min.js"></script>
     <script src="js/cart.js"></script>
+
+    <script src="js/views/api.js"></script>
+    <script src="js/views/historialPedidos.js"></script>
 </body>
 
 </html>

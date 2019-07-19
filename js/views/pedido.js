@@ -1,6 +1,6 @@
 var app = angular.module('pedidoApp', [])
     .controller('pedidoController', ($scope, $http) => {
-        $scope.API = "http://localhost:3002/api/";
+
         $scope.pedido = [];
         $scope.total = 0;
         $scope.usuario = {};
@@ -16,10 +16,31 @@ var app = angular.module('pedidoApp', [])
 
         $scope.authLogin();
 
+
+        $scope.reloadUser = function () {
+
+            $http({
+                method: 'POST',
+                url: MAIN + 'login',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: 'usuario=' + $scope.usuario.usuario + '&password=' + $scope.usuario.password
+            }).then((response, err) => {
+                console.log(response.data);
+                var data = response.data;
+                $scope.saveUserLocalStorage(data.usuario);
+            });
+        }
+
+        $scope.saveUserLocalStorage = function (user) {
+            window.localStorage.setItem('usuario', JSON.stringify(user));
+        }
+
+        $scope.reloadUser();
+        
         $scope.getPuntosTotales = function () {
             $http({
                 method: 'GET',
-                url: $scope.API + 'puntos'
+                url: API + 'puntos'
             }).then((response, err) => {
                 console.log(response);
                 $scope.puntos = response.data;
@@ -92,7 +113,7 @@ var app = angular.module('pedidoApp', [])
                     .then(() => {
                         $http({
                             method: 'POST',
-                            url: $scope.API + 'pedido',
+                            url: API + 'pedido',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             data: datos
                         }).then((response, err) => {
@@ -103,7 +124,14 @@ var app = angular.module('pedidoApp', [])
                                 text: 'Se ah completado su orden',
                                 icon: 'success'
                             })
-                            $scope.vaciarCarrito();
+
+                            localStorage.setItem("pedido", JSON.stringify({ items: [] }));
+                            localStorage.removeItem("pedido");
+
+                            $scope.pedido = [];
+                            $scope.total = 0;
+
+                            $scope.rel
                         })
                     })
 
@@ -114,7 +142,7 @@ var app = angular.module('pedidoApp', [])
             return new Promise((resolve, reject) => {
                 $http({
                     method: 'POST',
-                    url: $scope.API + 'usuario/removePuntos/' + $scope.usuario._id,
+                    url: API + 'usuario/removePuntos/' + $scope.usuario._id,
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     data: 'totalPuntos=' + (Number($scope.usuario.puntos) - Number($scope.total))
                 })

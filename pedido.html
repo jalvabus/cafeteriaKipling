@@ -42,6 +42,7 @@
                 <li><a href="pedido.html">Pedido en Curso</a></li>
                 <li><a href="historialPedidos.html">Mis Pedidos</a></li>
                 <li><a href="miPerfil.html">Mi Perfil</a></li>
+                <li><a onclick="logout();">Salir</a></li>
             </ul>
         </div>
         <!-- Contact Info -->
@@ -86,6 +87,7 @@
                         <li><a href="pedido.html">Pedido en Curso</a></li>
                         <li><a href="historialPedidos.html">Mis Pedidos</a></li>
                         <li><a href="miPerfil.html">Mi Perfil</a></li>
+                        <li><a onclick="logout();">Salir</a></li>
                     </ul>
                 </nav>
                 <!-- Header PC -->
@@ -192,8 +194,8 @@
                                     <div class="cart_extra_title">Total de la Orden</div>
                                     <ul class="cart_extra_total_list">
                                         <li class="d-flex flex-row align-items-center justify-content-start">
-                                            <div class="cart_extra_total_title">Total</div>
-                                            <div class="cart_extra_total_value ml-auto">${{ total }}</div>
+                                            <div class="cart_extra_total_title">Total Puntos</div>
+                                            <div class="cart_extra_total_value ml-auto">{{ total }}</div>
                                         </li>
                                     </ul>
                                     <button class="checkout_button trans_200" ng-click="confirmarOrden()"><a href="">Confirmar
@@ -321,6 +323,7 @@
     <script src="plugins/parallax-js-master/parallax.min.js"></script>
     <script src="js/cart.js"></script>
 
+    <script src="js/views/api.js"></script>
     <script src="js/views/pedido.js"></script>
 </body>
 
